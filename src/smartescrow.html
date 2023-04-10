@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+    <head>  
+  <title>Smart Escrow</title>  
+  <link rel="stylesheet" href="style.css">
+  <script
+   src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"
+   type="application/javascript"
+   ></script>
+   </head>
+
+   <body>
+	<header>Smart Escrow</header>
+	<div class="button-group">
+		<div>
+			<input id="addressInput" type="text" placeholder="Enter contractor address">
+			<button class="add-contractor-button" onclick="addContractor()">Add Contractor</button>
+			<div id="message"></div>
+		</div>
+		<div>
+			<button class="remove-contractor-button" onclick="removeContractor()">Remove Contractor</button>
+			<div id="message"></div>
+		</div>
+	<div>
+		<button class="get-contractor-button" onclick="getContractor()">Get Contractor</button>
+		<div id="contractor-address"></div>
+		<button class="owner-address-button" onclick="getOwner()">Owner Address</button>
+		<div id="owner-address"></div>
+	</div>
+	<div>
+		<button class="deposit-button" id="deposit-button">Deposit to Contract</button>
+		<input type="text" id="deposit-amount" placeholder="Deposit in (ETH)">
+		<p id="deposit"></p>
+		<button class="pay-contractor-button" onclick="payContractor()">Pay Contractor</button>
+	</div>
+		<div>
+			<button class="get-balance-button" onclick="getBalance()">Get Balance</button>
+			<div id="balance"></div>
+			<br><br>
+		</div>
+	</div>
+
+
+   </body>
+
+   <script
+   src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"
+   type="application/javascript"
+   ></script>
+
+   <script>
+    
+    var provider = new ethers.providers.Web3Provider(window.ethereum, "sepolia");
+
+
+// Declaring contract blockchain details
+var contractAddress = "0x29e398e491567d5ede37E06E6c7041B9FF6AC104";
+var abi = 
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_contractor",
+				"type": "address"
+			}
+		],
+		"name": "addContractor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "payContractor",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "removeContractor",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "balance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "contractor",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getContractor",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getOwner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "isPaid",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+var Escrow;
+var signer;
+    
+    
+    
+provider.send("eth_requestAccounts", []).then(() => {
+  provider.listAccounts().then((accounts) => {
+    signer = provider.getSigner(accounts[0]);
+    Escrow = new ethers.Contract(
+      contractAddress,
+      abi,
+      signer
+    );
+  });
+});
+
+
+const contract = new ethers.Contract(contractAddress, abi, provider);
+
+
+async function getBalance() {
+  const balance = await contract.getBalance();
+  const balanceInEther = balance / 1e18;
+  const balanceElement = document.getElementById("balance");
+  balanceElement.innerHTML = `Contract Balance: ${balanceInEther.toString()} ETH`;
+}
+
+
+
+async function addContractor() {
+  // Get the inputs
+  const contractorAddress = document.getElementById("addressInput").value;
+  
+  const signer = provider.getSigner();
+  const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+  const tx = await contractWithSigner.addContractor(contractorAddress);
+  await tx.wait();
+
+  // Display success message
+  const messageDiv = document.getElementById("message");
+  messageDiv.innerHTML = `Contractor ${contractorAddress} added successfully!`;
+  
+}
+
+async function removeContractor() {
+  const signer = provider.getSigner();
+  const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+  const tx = await contractWithSigner.removeContractor();
+  await tx.wait();
+
+  // Display success message
+  const messageDiv = document.getElementById("message");
+  messageDiv.innerHTML = "Contractor removed successfully!";
+}
+
+
+async function payContractor(){
+    
+    const signer = provider.getSigner();
+    const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+    const tx = await contractWithSigner.payContractor();
+    await tx.wait();
+
+}
+
+
+// Define the getContractor() function
+async function getContractor() {
+   const contractor = await contract.getContractor();
+   const contractorElement = document.getElementById("contractor-address");
+   contractorElement.innerHTML = `Contractor Address: ${contractor}`;
+}
+
+
+async function getOwner() {
+    const owner = await contract.getOwner();
+    const ownerElement = document.getElementById("owner-address");
+    ownerElement.innerHTML = `Owner address: ${owner}`;
+}
+
+// Define the deposit function
+async function deposit() {
+  try {
+    const amountInEth = parseFloat(document.getElementById("deposit-amount").value);
+    const amountInWei = ethers.utils.parseEther(amountInEth.toString());
+    const toAddress = '0x29e398e491567d5ede37E06E6c7041B9FF6AC104'; // Hardcoded destination address
+    // Send the transaction to withdraw funds
+    const tx = await signer.sendTransaction({
+      to: toAddress,
+      value: amountInWei,
+    });
+    console.log(`Successfully deposited ${amountInEth} ETH to address ${toAddress}`);
+    console.log(`Transaction hash: ${tx.hash}`);
+    document.getElementById("deposit").innerHTML = `Deposit Successful: ${amountInEth} ETH`;
+  } catch (error) {
+    console.error(`Error depositing ETH: ${error}`);
+    document.getElementById("deposit").innerHTML = "Error: " + error.message;
+  }
+}
+
+// Add click event listener to the Deposit button
+document.getElementById("deposit-button").addEventListener("click", deposit);
+
+
+   </Script>
+</html>

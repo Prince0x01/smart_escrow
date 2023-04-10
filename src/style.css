@@ -1,0 +1,63 @@
+/* Header */
+header {
+  background-color: transparent;
+  color: #0077be;
+  text-align: center;
+  font-weight: bold;
+  font-size: 36px;
+  padding: 20px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+/* Button styling */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #0077be;
+  color: #ffffff;
+  font-size: 16px;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+.button:hover {
+  background-color: #005ea2;
+}
+
+/* Large button */
+.large {
+  width: 40%;
+}
+
+/* Small button */
+.small {
+  width: 20%;
+}
+
+/* Green button */
+.green {
+  background-color: #4CAF50;
+}
+
+/* Aligning buttons */
+.button-group {
+  text-align: center;
+}
+
+/* Button row */
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+body {
+  background-image: url("escrow.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
