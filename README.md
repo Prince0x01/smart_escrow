@@ -1,4 +1,4 @@
-# smart_escrowEscrow Smart Contract
+# smart_escrow
 This is a simple Solidity smart contract for an escrow service. An escrow service is a third-party intermediary that holds funds on behalf of two parties engaged in a transaction until the transaction is completed.
 
 Contract Overview
