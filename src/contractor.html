@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html>
-    <head>  
-  <title>Smart Escrow</title>  
-  <link rel="stylesheet" href="style.css">
-  <script
-   src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"
-   type="application/javascript"
-   ></script>
-   </head>
+  <head>
+    <title>Smart Escrow</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
+  </head>
 
-   <body>
-	<header>Smart Escrow</header>
-	<div class="button-group">
-	<div>
-		<button class="get-contractor-button" onclick="getContractor()">Get Contractor</button>
-		<div id="contractor-address"></div>
-		<button class="owner-address-button" onclick="getOwner()">Owner Address</button>
-		<div id="owner-address"></div>
-	</div>
-	
-		<div>
-			<button class="get-balance-button" onclick="getBalance()">Get Balance</button>
-			<div id="balance"></div>
-			<br><br>
-            <input type="text" id="amount" placeholder="Enter amount in ETH">
-            <button id="withdraw-button">Withdraw</button>
-            <p id="message"></p>
-            <br><br>
-		</div>
-	</div>
-
-
-   </body>
+  <body>
+    <header>Smart Escrow</header>
+    <div class="button-group">
+      <div>
+        <input id="addressInput" type="text" placeholder="Enter contractor address" />
+        <button class="add-contractor-button" onclick="addContractor()">Add Contractor</button>
+        <div id="add-message"></div>
+      </div>
+      <div>
+        <button class="remove-contractor-button" onclick="removeContractor()">Remove Contractor</button>
+        <div id="remove-message"></div>
+      </div>
+      <div>
+        <button class="get-contractor-button" onclick="getContractor()">Get Contractor</button>
+        <div id="contractor-address"></div>
+        <button class="owner-address-button" onclick="getOwner()">Owner Address</button>
+        <div id="owner-address"></div>
+      </div>
+      <div>
+        <button class="deposit-button" id="deposit-button">Deposit to Contract</button>
+        <input type="text" id="deposit-amount" placeholder="Deposit in (ETH)" />
+        <p id="deposit-message"></p>
+        <button class="authorize-withdrawal-button" onclick="authorizeWithdrawal()">Authorize Withdrawal</button>
+        <div id="withdrawal-message"></div>
+      </div>
+      <div>
+        <button class="get-balance-button" onclick="getBalance()">Get Balance</button>
+        <div id="balance"></div>
+        <br /><br />
+      </div>
+    </div>
+  </body>
 
    <script
    src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"
@@ -44,7 +50,7 @@
 
 
 // Declaring contract blockchain details
-var contractAddress = "0x29e398e491567d5ede37E06E6c7041B9FF6AC104";
+var contractAddress = "0x2BaD1c6Be9fA4e82ED37B341C059951e8C0F161a";
 var abi = 
 [
 	{
@@ -62,7 +68,7 @@ var abi =
 	},
 	{
 		"inputs": [],
-		"name": "payContractor",
+		"name": "authorizeWithdrawal",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -70,7 +76,7 @@ var abi =
 				"type": "bool"
 			}
 		],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -88,8 +94,14 @@ var abi =
 	{
 		"inputs": [],
 		"name": "withdraw",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -150,19 +162,6 @@ var abi =
 	},
 	{
 		"inputs": [],
-		"name": "getOwner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "isPaid",
 		"outputs": [
 			{
@@ -188,6 +187,7 @@ var abi =
 		"type": "function"
 	}
 ]
+
 var Escrow;
 var signer;
     
@@ -207,13 +207,80 @@ provider.send("eth_requestAccounts", []).then(() => {
 
 const contract = new ethers.Contract(contractAddress, abi, provider);
 
-
+// Define the getBalance() function
 async function getBalance() {
   const balance = await contract.getBalance();
   const balanceInEther = balance / 1e18;
   const balanceElement = document.getElementById("balance");
   balanceElement.innerHTML = `Contract Balance: ${balanceInEther.toString()} ETH`;
 }
+
+// Define the addContractor() function
+async function addContractor() {
+  // Get the inputs
+  const contractorAddress = document.getElementById("addressInput").value;
+
+  const signer = provider.getSigner();
+  const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+
+  // Display confirmation prompt
+  const confirmed = window.confirm(`Are you sure you want to add ${contractorAddress} as a contractor?`);
+
+  if (confirmed) {
+    // Display pending message
+    const messageDiv = document.getElementById("add-message");
+    messageDiv.innerHTML = "Adding contractor...";
+
+    const tx = await contractWithSigner.addContractor(contractorAddress);
+    await tx.wait();
+
+    // Display success message
+    messageDiv.innerHTML = `Contractor ${contractorAddress} added successfully!`;
+  }
+}
+
+
+// Define the removeContractor() function
+async function removeContractor() {
+  const signer = provider.getSigner();
+  const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+
+  // Display confirmation prompt
+  const confirmed = window.confirm("Are you sure you want to remove this contractor?");
+
+  if (confirmed) {
+    // Display pending message
+    const messageDiv = document.getElementById("remove-message");
+    messageDiv.innerHTML = "Removing contractor...";
+
+    const tx = await contractWithSigner.removeContractor();
+    await tx.wait();
+
+    // Display success message
+    messageDiv.innerHTML = "Contractor removed successfully!";
+  }
+}
+
+
+// Define the authorizeWithdrawal() function
+async function authorizeWithdrawal(){
+
+	const signer = provider.getSigner();
+	const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
+
+	// Display pending message
+	const messageDiv = document.getElementById("withdrawal-message");
+	messageDiv.innerHTML = "Withdrawal being authorized...";
+
+	const tx = await contractWithSigner.authorizeWithdrawal();
+	await tx.wait();
+
+	// Display success message
+	messageDiv.innerHTML = "Withdrawal authorized successfully!";
+}
+
+
+
 
 // Define the getContractor() function
 async function getContractor() {
@@ -222,31 +289,51 @@ async function getContractor() {
    contractorElement.innerHTML = `Contractor Address: ${contractor}`;
 }
 
+
 async function getOwner() {
-    const owner = await contract.getOwner();
-    const ownerElement = document.getElementById("owner-address");
-    ownerElement.innerHTML = `Owner address: ${owner}`;
+  const owner = await contract.owner();
+  const ownerElement = document.getElementById("owner-address");
+  ownerElement.innerHTML = `Owner address: ${owner}`;
 }
 
-// Define the withdraw function
-async function withdraw() {
-    const amountInEth = parseFloat(document.getElementById("amount").value);
+
+// Define the deposit function
+async function deposit() {
+  try {
+    const amountInEth = parseFloat(document.getElementById("deposit-amount").value);
     const amountInWei = ethers.utils.parseEther(amountInEth.toString());
-    const signer = provider.getSigner();
-    const contractWithSigner = new ethers.Contract(contractAddress, abi, signer);
-    
-    try {
-    const tx = await contractWithSigner.withdraw(amountInWei);
-    await tx.wait();
-    document.getElementById("message").innerHTML = `Withdrawal Successful: ${amountInEth} ETH`;
-    } catch (error) {
-    console.error("Error occurred while withdrawing:", error);
-    document.getElementById("message").innerHTML = "Insufficient balance to withdraw or withdrawal limit exceeded.";
-    }
-}
-const withdrawButton = document.getElementById("withdraw-button");
-withdrawButton.addEventListener("click", withdraw);
+    const toAddress = '0x2BaD1c6Be9fA4e82ED37B341C059951e8C0F161a'; // Hardcoded destination address
 
+    // Prompt the user to confirm the deposit
+    const confirmed = confirm(`Are you sure you want to deposit ${amountInEth} ETH to address ${toAddress}?`);
+
+    if (!confirmed) {
+      console.log('Deposit cancelled by user');
+      return;
+    }
+
+    // Display a pending message to the user
+    document.getElementById("deposit-message").innerHTML = "Depositing to contract...";
+
+    // Send the transaction to withdraw funds
+    const tx = await signer.sendTransaction({
+      to: toAddress,
+      value: amountInWei,
+    });
+
+    // Log the transaction hash and update the success message
+    console.log(`Successfully deposited ${amountInEth} ETH to address ${toAddress}`);
+    console.log(`Transaction hash: ${tx.hash}`);
+    document.getElementById("deposit-message").innerHTML = `Deposit Successful: ${amountInEth} ETH`;
+  } catch (error) {
+    console.error(`Error depositing ETH: ${error}`);
+    document.getElementById("deposit-message").innerHTML = "Error: " + error.message;
+  }
+}
+
+
+// Add click event listener to the Deposit button
+document.getElementById("deposit-button").addEventListener("click", deposit);
 
 
    </Script>
