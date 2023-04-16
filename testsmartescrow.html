@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Smart Escrow</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="teststyle.css" />
     <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
   </head>
 
@@ -50,7 +50,7 @@
 
 
 // Declaring contract blockchain details
-var contractAddress = "0x2BaD1c6Be9fA4e82ED37B341C059951e8C0F161a";
+var contractAddress = "0xf5A6De4388d49C9C7C9dD5Eb4F6333c7e963e9B3";
 var abi = 
 [
 	{
@@ -187,7 +187,6 @@ var abi =
 		"type": "function"
 	}
 ]
-
 var Escrow;
 var signer;
     
@@ -302,26 +301,12 @@ async function deposit() {
   try {
     const amountInEth = parseFloat(document.getElementById("deposit-amount").value);
     const amountInWei = ethers.utils.parseEther(amountInEth.toString());
-    const toAddress = '0x2BaD1c6Be9fA4e82ED37B341C059951e8C0F161a'; // Hardcoded destination address
-
-    // Prompt the user to confirm the deposit
-    const confirmed = confirm(`Are you sure you want to deposit ${amountInEth} ETH to address ${toAddress}?`);
-
-    if (!confirmed) {
-      console.log('Deposit cancelled by user');
-      return;
-    }
-
-    // Display a pending message to the user
-    document.getElementById("deposit-message").innerHTML = "Depositing to contract...";
-
+    const toAddress = '0xf5A6De4388d49C9C7C9dD5Eb4F6333c7e963e9B3'; // Hardcoded destination address
     // Send the transaction to withdraw funds
     const tx = await signer.sendTransaction({
       to: toAddress,
       value: amountInWei,
     });
-
-    // Log the transaction hash and update the success message
     console.log(`Successfully deposited ${amountInEth} ETH to address ${toAddress}`);
     console.log(`Transaction hash: ${tx.hash}`);
     document.getElementById("deposit-message").innerHTML = `Deposit Successful: ${amountInEth} ETH`;
@@ -330,7 +315,6 @@ async function deposit() {
     document.getElementById("deposit-message").innerHTML = "Error: " + error.message;
   }
 }
-
 
 // Add click event listener to the Deposit button
 document.getElementById("deposit-button").addEventListener("click", deposit);

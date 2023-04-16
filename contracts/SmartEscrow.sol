@@ -16,21 +16,23 @@ contract Escrow {
         contractor = _contractor;
     }
 
-    function payContractor() public payable returns (bool){
-        require(msg.sender == owner, "Only the owner can pay the contractor");
-        balance += msg.value;
-        isPaid = true; // set to true after payment is made
+    function authorizeWithdrawal() public returns (bool){
+        require(msg.sender == owner, "Only the owner can authorize withdrawal");
+        require(balance > 0, "Contract balance is zero");
+        isPaid = true;
         return isPaid;
     }
 
-    function withdraw() public {
+
+    function withdraw() public payable returns (bool){
         require(msg.sender == contractor, "Only the contractor can withdraw");
         require(balance > 0, "Contract balance is zero");
-        require(isPaid, "Payment has not been made to the contractor yet");
+        require(isPaid, "Payment has not been authorized by contractor yet");
         uint amount = balance;
-        balance = 0;
         payable(contractor).transfer(amount);
+        balance = 0;
         isPaid = false; // set to false after withdrawal is made
+        return isPaid;
     }
 
     function removeContractor() public {
@@ -39,6 +41,12 @@ contract Escrow {
         contractor = address(0);
     }
 
+    // Allows Escrow to receive funds
+    receive() external payable {
+        balance += msg.value;
+    }
+
+
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -46,11 +54,4 @@ contract Escrow {
     function getContractor() public view returns (address) {
         return contractor;
     }
-
-    function getOwner() public view returns (address) {
-        return owner;
-    }
-
-    // Owner cannot withdraw from the contract
-    receive() external payable {}
 }
