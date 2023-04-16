@@ -1,44 +1,51 @@
-# smart_escrow
-This is a simple Solidity smart contract for an escrow service. An escrow service is a third-party intermediary that holds funds on behalf of two parties engaged in a transaction until the transaction is completed.
+Escrow Smart Contract
 
-Contract Overview
-The contract has an owner and a contractor address. The owner is the party who creates the contract and funds it, while the contractor is the party who will receive the funds once the conditions of the transaction are met.
+N.B: This contract was deployed and tested on the sepolia testnet.
 
-The contract has several functions:
+This is a smart contract written in Solidity programming language for an escrow service. The contract allows a contract owner to hold funds in escrow until a contractor has completed certain tasks or fulfilled certain conditions. Once the tasks or conditions are met, the owner can authorize the release of funds to the contractor.
 
-addContractor: This function is used by the owner to add a contractor address to the contract. Only the owner can add a contractor.
+How it works
+The contract has several functions that allow the owner and the contractor to interact with it:
 
-payContractor: This function is used by the owner to pay the contractor. Only the owner can pay the contractor. The function takes in a payable amount and adds it to the contract balance.
+addContractor
+This function allows the contract owner to add a contractor to the contract. Only the owner can call this function.
 
-withdraw: This function is used by the contractor to withdraw the funds from the contract. Only the contractor can withdraw the funds. The function checks that the contract balance is greater than zero and that the payment has been made to the contractor before allowing the withdrawal.
+authorizeWithdrawal
+This function allows the contract owner to authorize the withdrawal of funds from the contract. Only the owner can call this function. The function requires that the contract balance is greater than zero.
 
-removeContractor: This function is used by the owner to remove the contractor address from the contract. Only the owner can remove a contractor, and the contractor must withdraw their funds before being removed.
+withdraw
+This function allows the contractor to withdraw funds from the contract, provided that the owner has authorized the withdrawal and the contract balance is greater than zero. Only the contractor can call this function.
 
-getBalance: This function returns the current balance of the contract.
+removeContractor
+This function allows the contract owner to remove a contractor from the contract. Only the owner can call this function. The function requires that the contractor has not been paid yet.
 
-getContractor: This function returns the current contractor address.
+receive
+This is a fallback function that allows the contract to receive funds. Anyone can call this function and send Ether to the contract address.
 
-getOwner: This function returns the current owner address.
+getBalance
+This function returns the balance of the contract. Anyone can call this function.
 
-receive: This is a fallback function that is used to receive payments to the contract. The function is marked as external and payable, which means that it can receive payments from other contracts or external accounts.
+getContractor
+This function returns the address of the contractor. Anyone can call this function.
 
-Usage
-To use the contract, you need to deploy it to a blockchain network that supports Solidity smart contracts, such as Ethereum. You can use a tool like Remix to deploy the contract and interact with its functions.
+How to use
+To use this smart contract, you need to deploy it on a blockchain network that supports Solidity smart contracts, such as Ethereum or Binance Smart Chain. This code was deployed and tested on the 'sepolia' testnet. You can use a tool like Remix or Truffle to compile and deploy the contract.
 
-Once the contract is deployed, you can follow these steps to use it:
+Once the contract is deployed, you need to interact with it using a wallet that supports the blockchain network and the contract interface. You can use a tool like Metamask or Trust Wallet to connect to the network and the contract.
 
-The owner should add the contractor's address to the contract using the addContractor function.
+To use the contract, follow these steps:
 
-The owner should fund the contract using the payContractor function.
+Call the addContractor function to add a contractor to the contract. Provide the address of the contractor as an argument.
 
-Once the conditions of the transaction are met, the contractor can withdraw the funds using the withdraw function.
+Wait for the contractor to complete the tasks or fulfill the conditions.
 
-If needed, the owner can remove the contractor's address from the contract using the removeContractor function.
+Call the authorizeWithdrawal function to authorize the withdrawal of funds. Make sure that the contract balance is greater than zero.
 
-Security Considerations
-This contract is meant to provide a simple escrow service, but it does not have any built-in safeguards to prevent the owner or the contractor from acting maliciously, and it does not have any dispute resolution mechanisms. Therefore, it is important to use an escrow service that has these safeguards and mechanisms in place if you need them.
+Wait for the contractor to call the withdraw function to withdraw the funds. Make sure that the contractor is the one calling the function and that the payment has been authorized by the owner.
 
-When using this contract, make sure to verify the addresses of the owner and the contractor before interacting with the contract. Also, make sure to follow best practices for secure smart contract development, such as avoiding the use of tx.origin, checking input parameters, and limiting the use of external calls.
+If needed, call the removeContractor function to remove the contractor from the contract. Make sure that the contractor has not been paid yet.
+
+Repeat the process with a new contractor if needed.
 
 License
-This smart contract is licensed under the MIT license.
+This smart contract is released under the MIT License. You can use, modify, and distribute it for any purpose, as long as you include the original license text and copyright notice.
