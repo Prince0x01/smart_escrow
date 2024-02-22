@@ -23,6 +23,7 @@ contract Escrow {
         return isPaid;
     }
 
+
     function withdraw() public payable returns (bool){
         require(msg.sender == contractor, "Only the contractor can withdraw");
         require(balance > 0, "Contract balance is zero");
@@ -45,6 +46,7 @@ contract Escrow {
         balance += msg.value;
     }
 
+
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -52,4 +54,4 @@ contract Escrow {
     function getContractor() public view returns (address) {
         return contractor;
     }
-}
+ }
