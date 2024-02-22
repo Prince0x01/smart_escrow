@@ -9,7 +9,7 @@ contract Escrow {
 
     constructor() {
         owner = 0xa1B94ef0f24d7F4fd02285EFcb9202E6C6EC655B;
-    }
+    } 
 
     function addContractor(address _contractor) public {
         require(msg.sender == owner, "Only the owner can add a contractor");
@@ -22,7 +22,6 @@ contract Escrow {
         isPaid = true;
         return isPaid;
     }
-
 
     function withdraw() public payable returns (bool){
         require(msg.sender == contractor, "Only the contractor can withdraw");
@@ -45,7 +44,6 @@ contract Escrow {
     receive() external payable {
         balance += msg.value;
     }
-
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
